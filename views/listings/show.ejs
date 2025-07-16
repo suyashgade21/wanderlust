@@ -1,39 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= listing.title %> | Wanderlust</title>
-    <!-- ✅ Include Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="card shadow">
-            <!-- Image Display -->
-            <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" style="height: 20rem; object-fit: cover;">
+<% layout('layouts/boilerplate') %>
 
-            <div class="card-body">
-                <h3 class="card-title mb-3"><%= listing.title %></h3>
-                <ul class="list-group list-group-flush mb-4">
-                    <li class="list-group-item"><strong>Description:</strong> <%= listing.description %></li>
-                    <li class="list-group-item"><strong>Price:</strong> ₹<%= listing.price.toLocaleString("en-IN") %></li>
-                    <li class="list-group-item"><strong>Location:</strong> <%= listing.location %></li>
-                    <li class="list-group-item"><strong>Country:</strong> <%= listing.country %></li>
-                </ul>
+<div class="container mt-5">
+  <div class="card shadow">
+    <!-- Listing Image -->
+    <% if (typeof listing.image === 'string') { %>
+      <img src="<%= listing.image %>" class="card-img-top" alt="<%= listing.title %>" style="height: 20rem; object-fit: cover;">
+    <% } else if (listing.image && listing.image.url) { %>
+      <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" style="height: 20rem; object-fit: cover;">
+    <% } %>
 
-                <!-- Action Buttons -->
-                <div class="d-flex justify-content-between">
-                    <a href="/listings/<%= listing._id %>/edit" class="btn btn-warning">✏️ Edit</a>
+    <div class="card-body">
+      <!-- Rest of your code remains unchanged -->
 
-                    <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this listing?')">
-                        <button type="submit" class="btn btn-danger">🗑️ Delete</button>
-                    </form>
+    <div class="card-body">
+      <!-- Listing Details -->
+      <h3 class="card-title mb-3"><%= listing.title %></h3>
+      <ul class="list-group list-group-flush mb-4">
+        <li class="list-group-item"><strong>Description:</strong> <%= listing.description %></li>
+        <li class="list-group-item"><strong>Price:</strong> ₹<%= listing.price.toLocaleString("en-IN") %></li>
+        <li class="list-group-item"><strong>Location:</strong> <%= listing.location %></li>
+        <li class="list-group-item"><strong>Country:</strong> <%= listing.country %></li>
+      </ul>
 
-                    <a href="/listings" class="btn btn-secondary">⬅ Back</a>
-                </div>
-            </div>
+      <!-- Action Buttons -->
+      <div class="d-flex justify-content-between mb-4">
+        <a href="/listings/<%= listing._id %>/edit" class="btn btn-warning">✏️ Edit</a>
+
+        <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Are you sure you want to delete this listing?')">
+          <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+        </form>
+
+        <a href="/listings" class="btn btn-secondary">⬅ Back</a>
+      </div>
+
+      <!-- Review Form -->
+      <hr>
+      <h4 class="mb-3">Leave a Review</h4>
+      <form action="/listings/<%= listing._id %>/reviews" method="POST">
+        <div class="mb-3">
+          <label class="form-label d-block">Rating:</label>
+          <div class="star-rating">
+            <% for (let i = 5; i >= 1; i--) { %>
+              <input type="radio" name="review[rating]" value="<%= i %>" id="star<%= i %>">
+              <label for="star<%= i %>">★</label>
+            <% } %>
+          </div>
+          <div id="rating-value" class="mt-1 text-secondary">Rating: 0</div>
         </div>
+
+        <div class="mb-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea name="review[body]" id="comment" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+      </form>
+
+      <!-- Display Existing Reviews -->
+      <% if (listing.reviews && listing.reviews.length > 0) { %>
+        <hr>
+        <h5 class="mt-4">User Reviews</h5>
+        <% listing.reviews.forEach(review => { %>
+          <div class="border rounded p-3 mb-2">
+            <strong>Rating:</strong>
+            <span class="star-rating-display">
+              <% for (let i = 1; i <= 5; i++) { %>
+                <%= i <= review.rating ? '★' : '☆' %>
+              <% } %>
+            </span><br>
+            <strong>Comment:</strong> <%= review.body %>
+
+            <!-- Delete Review -->
+            <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST" class="mt-2">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </div>
+        <% }) %>
+      <% } %>
     </div>
-</body>
-</html>
+  </div>
+</div>
+
+<!-- Rating Script -->
+<script>
+  const stars = document.querySelectorAll('.star-rating input');
+  const ratingText = document.getElementById('rating-value');
+
+  stars.forEach((star) => {
+    star.addEventListener('change', () => {
+      ratingText.textContent = `Rating: ${star.value}`;
+    });
+  });
+</script>

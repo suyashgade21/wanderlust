@@ -1,53 +1,55 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-//const Review = require("./review.js");
-
-
 
 const listingSchema = new Schema({
-    title: {
-        type: String,
-        required: true,
+  title: {
+    type: String,
+    required: true,
+  },
+
+  description: String,
+
+  image: {
+    url: {
+      type: String,
+      default:
+        "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=800&q=60",
+      set: (v) =>
+        v === ""
+          ? "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?auto=format&fit=crop&w=800&q=60"
+          : v,
     },
-
-    description: String,
-
-    image: {
-       url: String,
-       filename: String,
+    filename: {
+      type: String,
+      default: "default-image",
     },
+  },
 
-    price: Number,
+  price: Number,
+  location: String,
+  country: String,
 
-    location: String,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "User", // capital 'User' is conventional
+  },
 
-    country: String,
-
-    review: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Review",
-        }
-    ],
-
-    owner: 
-        {
-        type: Schema.Types.ObjectId,
-        ref: "user",
-        },
-
- 
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+    },
+    
+  ],
 });
 
-
-/*listingSchema.post("findOneAndDelete", async (listing) => {
-  if(listing) {
-    await Review.deleteMany({_id: {$in: listing.review}});
+// Optional: Cascade delete reviews when a listing is deleted
+/*
+listingSchema.post("findOneAndDelete", async (listing) => {
+  if (listing) {
+    await Review.deleteMany({ _id: { $in: listing.reviews } });
   }
 });
 */
-//CREATING MODULE
-const Listing = mongoose.model("Listing", listingSchema) ;
 
-//and exporting this model to app.js with
-module.exports = Listing;
+module.exports = mongoose.model("Listing", listingSchema);

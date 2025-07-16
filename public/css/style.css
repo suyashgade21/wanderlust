@@ -106,3 +106,39 @@ card-img-overlay :hover{
     background-color: white;
 
 }
+
+  .star-rating {
+    display: flex;
+  flex-direction: row-reverse;
+  gap: 0.3rem;
+  font-size: 2rem;
+  }
+
+  .star-rating input {
+    display: none;
+  }
+
+  .star-rating label {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+  }
+
+  /* Hover effect */
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: gold;
+  }
+
+  /* Selected effect */
+  .star-rating input:checked ~ label {
+    color: gold;
+    font-weight: bold;
+  }
+  .star-rating-display {
+  color: gold;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
